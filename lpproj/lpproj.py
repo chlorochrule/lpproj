@@ -43,9 +43,17 @@ class LocalityPreservingProjection(BaseEstimator, TransformerMixin):
         self.weight_width = weight_width
         self.neighbors_algorithm = neighbors_algorithm
 
-    def fit(self, X, y=None):
+    def fit(self, X, W=None, y=None):
         X = check_array(X)
-        W = self._compute_weights(X)
+        if self.weight == 'precomputed':
+            W = check_array(W)
+            if W.shape[0] != W.shape[1]:
+                raise ValueError("Input is not square matrix despite weight "
+                                 "is precomputed")
+            W = np.maximum(W, W.T)
+        else:
+            W = self._compute_weights(X)
+
         self.projection_ = self._compute_projection(X, W)
         return self
 
@@ -80,13 +88,6 @@ class LocalityPreservingProjection(BaseEstimator, TransformerMixin):
 
     def _compute_weights(self, X):
         X = check_array(X)
-
-        if self.weight == 'precomputed':
-            if X.shape[0] != X.shape[1]:
-                raise ValueError("Input is not square matrix despite weight "
-                                 "is precomputed")
-            X = np.maximum(X, X.T)
-            return X
 
         self.nbrs_ = NearestNeighbors(n_neighbors=self.n_neighbors,
                                       algorithm=self.neighbors_algorithm)
