@@ -43,7 +43,7 @@ class LocalityPreservingProjection(BaseEstimator, TransformerMixin):
         self.weight_width = weight_width
         self.neighbors_algorithm = neighbors_algorithm
 
-    def fit(self, X, W=None, y=None):
+    def fit(self, X, y=None, W=None):
         X = check_array(X)
         if self.weight == 'precomputed':
             W = check_array(W)
